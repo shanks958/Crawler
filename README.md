@@ -49,14 +49,14 @@ Does:
 
 ### 🗂 **Clean Output Files**
 The tool generates multiple structured output files:
-
+```
 prefix_alive_urls.txt
 prefix_params.txt
 prefix_endpoints.txt
 prefix_api_endpoints.txt
 prefix_js_files.txt
 prefix_osint_strings.txt
-
+```
 
 ### ⚡ **Multi-threading**
 Speed up your crawl with:
@@ -106,8 +106,9 @@ Force Browser Mode
 ```python3 endpoint_crawler.py https://example.com --mode browser```
 
 Use Burp Proxy
-```python3 endpoint_crawler.py https://example.com --burp```<br/>
+```python3 endpoint_crawler.py https://example.com --burp```
 
+---
 
 📁 Output Files
 1. prefix_alive_urls.txt
@@ -139,6 +140,8 @@ External APIs
 CDN URLs
 (OSINT gold mine)
 
+---
+
 🧪 Example Output Summary
 ```
 [✓] Alive URLs: 1048
@@ -163,31 +166,6 @@ The author **is not responsible** for any misuse, damage, or legal consequences 
 
 
 ❤️ Author
-
 Created with passion for cybersecurity, automation, and recon.
 
-📄 MIT LICENSE
-```
-MIT License
-
-Copyright (c) 2025 <Anish Ganatra>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
 
