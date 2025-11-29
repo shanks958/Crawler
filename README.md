@@ -106,9 +106,9 @@ Force Browser Mode
 ```python3 endpoint_crawler.py https://example.com --mode browser```
 
 Use Burp Proxy
-```python3 endpoint_crawler.py https://example.com --burp```
+```python3 endpoint_crawler.py https://example.com --burp```<br/>
 
-``` ```
+
 📁 Output Files
 1. prefix_alive_urls.txt
 Format:
