@@ -148,14 +148,13 @@ CDN URLs
 [✓] OSINT URLs: 33
 ```
 
-
 ⚖ Legal Disclaimer
 This tool is intended ONLY for:
 Security testing with permission
 Educational use
 Bug bounty programs
-Using this tool on systems without authorization is illegal.
-The author is not responsible for misuse or damage.
+Unauthorized scanning is illegal.
+I am not responsible for misuse or damages caused by this tool.
 
 ❤️ Author
 
