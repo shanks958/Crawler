@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.log
+*alive_urls.txt
+*endpoints.txt
+*params.txt
+*js_files.txt
+*api_endpoints.txt
+*osint_strings.txt
