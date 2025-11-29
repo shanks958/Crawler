@@ -12,6 +12,7 @@ It intelligently extracts:
 - Browser-rendered dynamic URLs (anti-bot/WAF friendly)
 
 Supports:
+
 ✔ Static crawling  
 ✔ JS parsing  
 ✔ Browser-mode crawling (Chromium)  
