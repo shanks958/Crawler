@@ -1,80 +1,54 @@
-# EndpointCrawler — Advanced Web Crawler for Recon, OSINT & API Discovery
+# 🔥 EndpointCrawler v2  
+### **Advanced Web Crawler for Recon, OSINT, API Discovery & JS Enumeration**
 
-EndpointCrawler is a **next-generation web crawler** built for bug bounty hunters, red teamers, and OSINT analysts.  
-It intelligently extracts:
-
-- Alive URLs with status codes  
-- JS file endpoints  
-- API/REST endpoints  
-- Hidden parameters  
-- OSINT-rich external URLs  
-- Deep JS-discovered links  
-- Browser-rendered dynamic URLs (anti-bot/WAF friendly)
-
-Supports:
-
-✔ Static crawling  
-✔ JS parsing  
-✔ Browser-mode crawling (Chromium)  
-✔ WAF/Cloudflare-friendly behavior  
-✔ Multi-threading  
-✔ Depth-controlled recursion  
+<p align="center">
+  <b>A next-generation offensive security crawler built for bug bounty hunters, red teamers, and OSINT analysts.</b>
+</p>
 
 ---
 
-## 🚀 Features
+## 🚀 **What is EndpointCrawler?**
 
-### 🔍 **Smart HTML & JS Crawling**
-- Extracts URLs from HTML, JS files, inline JS, fetch calls, XHR, open(), etc.
-- Follows HTML `<a>`, `<script>`, and dynamic JS-based URLs.
+`EndpointCrawler` is a high-performance, multi-threaded web crawler designed to dig deep into a target website and extract everything useful for recon:
 
-### 🧠 **JS Analysis**
-- Finds URLs hidden inside JavaScript code.
-- Discovers API endpoints like `/api/*`, `/rest/*`, `/v1/`, `/graphql`, etc.
+- 🔍 **Endpoints** (including hidden & JS-exposed)
+- 🧩 **API + REST routes**
+- 🌐 **Alive URLs with status codes**
+- 🏷️ **Query parameters**
+- 📜 **JavaScript files**
+- 🕵️ **OSINT URLs**
+- 🧠 **Smart WAF-aware engine switching**  
+  Requests → Cloudscraper → Browser (Playwright)
 
-### 🌐 **Browser Mode (Anti-Bot Safe)**
-Solves:
-- JS-rendered pages  
-- Bot-detection-heavy sites  
-- Cloudflare “Browser Verification”  
-
-By using **real Chromium** when needed.
-
-### 🛡 **WAF-Aware Behavior**
-Does:
-- Randomized headers & user-agents
-- Smart delays
-- Browser fingerprint mimic
-- Adaptive retry strategy
-
-### 🗂 **Clean Output Files**
-The tool generates multiple structured output files:
-```
-prefix_alive_urls.txt
-prefix_params.txt
-prefix_endpoints.txt
-prefix_api_endpoints.txt
-prefix_js_files.txt
-prefix_osint_strings.txt
-```
-
-### ⚡ **Multi-threading**
-Speed up your crawl with:
--t 20
-
-
-### 🔎 **OSINT Collection**
-Extracts all **external URLs** including:
-- Social media
-- CDNs
-- API references
-- GitHub links
-- Documentation URLs
-- External resources inside JS
+No more blind crawling —  
+this tool **parses both HTML & JS**, extracts hidden API calls, handles JS-rendered content, and avoids basic WAF blocks.
 
 ---
 
-# 📦 Installation
+## ⚡ Features
+
+- 🚀 Multi-threaded crawling  
+- 🌲 Depth-controlled recursion  
+- 🧩 Intelligent JS parsing  
+- 🕸️ Detects: `/api/`, `/rest/`, `/v1/`, `/auth/`, GraphQL, etc.  
+- 🛡️ Auto WAF handling (403/429/503 detection)  
+- 🧠 Switches engine to Cloudscraper or Browser mode automatically  
+- 🎯 Extracts URLs from:
+  - HTML href/src  
+  - Inline JS  
+  - External JS files  
+  - `fetch()`, `XHR`, and hidden string patterns  
+- 📦 Detailed output files:
+  - `*_alive_urls.txt`
+  - `*_endpoints.txt`
+  - `*_api_endpoints.txt`
+  - `*_params.txt`
+  - `*_js_files.txt`
+  - `*_osint_strings.txt`
+
+---
+
+## 📦 Installation
 
 ### Requirements
 - Python 3.8+
@@ -168,7 +142,10 @@ Using this tool on systems **without explicit authorization is illegal**.
 The author **is not responsible** for any misuse, damage, or legal consequences resulting from the use of this tool.
 
 
-❤️ Author
-Created with passion for cybersecurity, automation, and recon.
+👤 Author
+
+shanks958  
+GitHub: https://github.com/shanks958
+
 
 
