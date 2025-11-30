@@ -108,6 +108,9 @@ Force Browser Mode
 Use Burp Proxy
 ```python3 endpoint_crawler.py https://example.com --burp```
 
+Set custom timeout
+```python3 endpoint_crawler.py https://example.com --timeout 20```
+
 ---
 
 📁 Output Files
