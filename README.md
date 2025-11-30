@@ -87,7 +87,7 @@ Set custom timeout
 
 ---
 
-📁 Output Files
+## 📁 Output Files
 1. prefix_alive_urls.txt
 Format:
 ```<status_code> <url>```
@@ -119,7 +119,7 @@ CDN URLs
 
 ---
 
-🧪 Example Output Summary
+## 🧪 Example Output Summary
 ```
 [✓] Alive URLs: 1048
 [✓] Params: 27
@@ -128,6 +128,7 @@ CDN URLs
 [✓] JS files: 20
 [✓] OSINT URLs: 33
 ```
+---
 
 ## ⚖ Legal Disclaimer
 
@@ -141,8 +142,9 @@ Using this tool on systems **without explicit authorization is illegal**.
 
 The author **is not responsible** for any misuse, damage, or legal consequences resulting from the use of this tool.
 
+---
 
-👤 Author
+## 👤 Author
 
 shanks958  
 GitHub: https://github.com/shanks958
