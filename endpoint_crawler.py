@@ -41,7 +41,6 @@ def show_banner():
           "         API Discovery, Param Mining, OSINT Extraction 🔥\033[0m\n")
 
 
-
 DEFAULT_THREADS = 10
 DEFAULT_TIMEOUT = 12
 DEFAULT_DEPTH = 4
@@ -67,7 +66,7 @@ BASE_HEADERS = {
 def clean_url(u: str) -> str:
     if not u:
         return ""
-    u = u.replace("\\", "")  # remove backslashes
+    u = u.replace("\\", "")
     u = u.replace('"', "").replace("'", "")
     if "http" in u:
         u = u[u.find("http"):]
@@ -136,35 +135,28 @@ class EndpointCrawler:
         self.timeout = timeout
         self.depth = depth
         self.prefix = prefix
-        self.burp = burp          # FIXED — must be declared before HTTP engine
-        self.mode = mode          # "auto" / "requests" / "cloudscraper" / "browser"
+        self.burp = burp
+        self.mode = mode
 
-        # engine selection logic
         if mode == "auto":
             self.engine = "requests"
         else:
             self.engine = mode
 
-        # dynamic engine object (session)
         self.session = None
-
-        # Playwright state
         self.playwright = None
         self.browser = None
 
         self._init_http_engine()
 
-        # Threading
         self.queue = Queue()
         self.lock = threading.Lock()
 
-        # visited
         self.visited_html = set()
         self.visited_js = set()
         self.queued_html = set()
         self.queued_js = set()
 
-        # OUTPUT STORAGE
         self.alive = {}
         self.params = set()
         self.endpoints = set()
@@ -172,20 +164,11 @@ class EndpointCrawler:
         self.js_files = set()
         self.osint_strings = set()
 
-	    # ====================
-    # LOG
-    # ====================
     def log(self, *msg):
         with self.lock:
             print(*msg)
 
-    # ====================
-    # ENGINE INIT
-    # ====================
     def _init_http_engine(self):
-        """
-        Initialize HTTP engine based on current self.engine.
-        """
         if self.engine == "cloudscraper":
             if not HAS_CF:
                 self.log("[!] cloudscraper not installed, falling back to requests.")
@@ -205,14 +188,7 @@ class EndpointCrawler:
                 })
                 self.session.verify = False
 
-    # ====================
-    # WAF-ish Detection
-    # ====================
     def is_waf_like(self, status, headers, body_snippet):
-        """
-        Simple WAF-ish detection: used ONLY to decide engine switching.
-        We are NOT bypassing anything – just behaving smarter.
-        """
         if status in (403, 406, 409, 429, 503):
             return True
 
@@ -234,8 +210,8 @@ class EndpointCrawler:
                     return True
 
         waf_body_markers = [
-            "checking your browser",       # cloudflare
-            "just a moment",               # cloudflare
+            "checking your browser",
+            "just a moment",
             "ddos protection by",
             "web application firewall",
             "access denied",
@@ -249,13 +225,7 @@ class EndpointCrawler:
 
         return False
 
-    # ====================
-    # FETCH HELPERS
-    # ====================
     def _fetch_requests(self, url):
-        """
-        Use self.session (requests / cloudscraper) to fetch.
-        """
         if self.session is None:
             self._init_http_engine()
 
@@ -266,10 +236,6 @@ class EndpointCrawler:
             return None, None, url, {}
 
     def _fetch_browser(self, url):
-        """
-        Use Playwright for a single-page fetch.
-        (We keep it stateless for safety with threads.)
-        """
         if not HAS_PLAYWRIGHT:
             self.log("[!] Playwright not installed, cannot use browser mode.")
             return None, None, url
@@ -285,7 +251,6 @@ class EndpointCrawler:
                         page.goto(url, wait_until="networkidle")
                         html = page.content()
                         final_url = page.url
-                        # some engines let you inspect response; we approximate with 200 if no error
                         browser.close()
                         self.log(f"[!] Browser mode used ({name}) for {url}")
                         return 200, html, final_url
@@ -296,15 +261,7 @@ class EndpointCrawler:
 
         return None, None, url
 
-    # ====================
-    # FETCH (ENGINE + AUTO)
-    # ====================
     def fetch(self, url):
-        """
-        Fetch URL depending on mode / engine.
-        Returns: (status, body, final_url)
-        """
-        # Hard modes
         if self.mode == "requests":
             self.engine = "requests"
             status, text, final_url, _ = self._fetch_requests(url)
@@ -320,13 +277,10 @@ class EndpointCrawler:
             status, text, final_url = self._fetch_browser(url)
             return status, text, final_url
 
-        # AUTO MODE
-        # Step 1: try requests
         if self.engine not in ("requests", "cloudscraper", "browser"):
             self.engine = "requests"
 
         if self.engine in ("requests", "cloudscraper"):
-            # ensure HTTP engine is ready
             if self.session is None:
                 self._init_http_engine()
 
@@ -336,17 +290,15 @@ class EndpointCrawler:
 
             body_snip = (text or "")[:2048]
             if self.is_waf_like(status, headers, body_snip):
-                # Try cloudscraper if not already
                 if HAS_CF and self.engine != "cloudscraper":
                     self.log("[!] WAF-ish response, switching to Cloudscraper...")
                     self.engine = "cloudscraper"
-                    self.session = None  # force re-init
+                    self.session = None
                     status2, text2, final_url2, headers2 = self._fetch_requests(url)
                     if status2 is not None and not self.is_waf_like(status2, headers2, (text2 or "")[:2048]):
                         return status2, text2, final_url2
                     status, text, final_url = status2, text2, final_url2
 
-                # If still WAFish and Playwright available → browser
                 if HAS_PLAYWRIGHT:
                     self.log("[!] Strong protection / JS challenge, using browser mode...")
                     self.engine = "browser"
@@ -360,32 +312,24 @@ class EndpointCrawler:
             status, text, final_url = self._fetch_browser(url)
             return status, text, final_url
 
-        # fallback
         status, text, final_url, _ = self._fetch_requests(url)
         return status, text, final_url
 
-    # ====================
-    # HTML HANDLER
-    # ====================
     def handle_html(self, url, html, depth):
         soup = BeautifulSoup(html, "html.parser")
 
-        # Inline JS OSINT
         for s in soup.find_all("script"):
             if not s.get("src"):
                 self.osint_strings.update(extract_osint_urls(s.string or ""))
 
-        # Links
         for a in soup.find_all("a", href=True):
             nxt = clean_url(urljoin(url, a["href"]))
             nxt = normalize_url(nxt)
 
-            # external → OSINT
             if not same_domain(nxt, self.root):
                 self.osint_strings.add(nxt)
                 continue
 
-            # depth control
             if depth + 1 > self.depth:
                 continue
 
@@ -397,7 +341,6 @@ class EndpointCrawler:
             self.log(f"[HTML][{depth+1}] {nxt}")
             self.queue.put((nxt, depth + 1, "html"))
 
-        # Script files
         for s in soup.find_all("script", src=True):
             js = clean_url(urljoin(url, s["src"]))
             js = normalize_url(js)
@@ -417,11 +360,7 @@ class EndpointCrawler:
             self.log(f"[JS][{depth+1}] {js}")
             self.queue.put((js, depth + 1, "js"))
 
-    # ====================
-    # JS HANDLER
-    # ====================
     def handle_js(self, url, js_body, depth):
-        # OSINT from JS itself
         self.osint_strings.update(extract_osint_urls(js_body))
 
         for found in extract_js_urls(js_body, url):
@@ -448,9 +387,6 @@ class EndpointCrawler:
             self.log(f"[FOUND][{kind.upper()}] {found}")
             self.queue.put((found, depth + 1, kind))
 
-    # ====================
-    # WORKER
-    # ====================
     def worker(self):
         while True:
             try:
@@ -470,7 +406,6 @@ class EndpointCrawler:
                             continue
                         self.visited_js.add(url)
 
-                # For HTTP engines, set random UA
                 if self.engine in ("requests", "cloudscraper") and self.session is not None:
                     self.session.headers["User-Agent"] = random.choice(UA_LIST)
 
@@ -484,7 +419,6 @@ class EndpointCrawler:
                 clean = clean_url(final_url or url)
                 self.alive[clean] = status
 
-                # params
                 if "?" in clean:
                     self.params.add(clean)
                     self.log("[PARAM]", clean)
@@ -511,9 +445,6 @@ class EndpointCrawler:
             finally:
                 self.queue.task_done()
 
-    # ====================
-    # SAVE OUTPUT
-    # ====================
     def save(self):
         base = self.prefix
 
@@ -535,9 +466,6 @@ class EndpointCrawler:
 
         self.log("[✓] Output saved!")
 
-    # ====================
-    # RUN
-    # ====================
     def run(self):
         start = normalize_url(clean_url(self.start_url))
 
@@ -555,10 +483,8 @@ class EndpointCrawler:
             threads.append(t)
             t.start()
 
-        # Wait for threads
         self.queue.join()
 
-        # Save output
         self.save()
 
         elapsed = time.time() - t0
@@ -576,20 +502,72 @@ class EndpointCrawler:
 # =======================
 def main():
     show_banner()
-    parser = argparse.ArgumentParser()
-    parser.add_argument("url")
-    parser.add_argument("-t", "--threads", type=int, default=DEFAULT_THREADS)
-    parser.add_argument("-d", "--depth", type=int, default=DEFAULT_DEPTH)
-    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
-    parser.add_argument("--burp", action="store_true",
-                        help="Send traffic through Burp at 127.0.0.1:8080")
-    parser.add_argument("-o", "--prefix", default=DEFAULT_PREFIX)
+
+    parser = argparse.ArgumentParser(
+        prog="EndpointCrawler",
+        description="""
+🔥 EndpointCrawler v2 — Advanced Web Recon Tool
+
+Crawls a target website recursively and extracts:
+  • Endpoints
+  • API routes
+  • Parameters
+  • JavaScript files
+  • OSINT URLs
+  • Hidden URLs from JS code
+  • JS-rendered routes (Browser Mode)
+
+Supports smart engine switching:
+  Requests → CloudScraper → Browser (Playwright)
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument(
+        "url",
+        help="Target URL to crawl"
+    )
+
+    parser.add_argument(
+        "-t", "--threads",
+        type=int,
+        default=DEFAULT_THREADS,
+        help="Number of crawling threads (default: 10)"
+    )
+
+    parser.add_argument(
+        "-d", "--depth",
+        type=int,
+        default=DEFAULT_DEPTH,
+        help="Maximum crawl depth (default: 4)"
+    )
+
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=DEFAULT_TIMEOUT,
+        help="Request timeout in seconds (default: 12)"
+    )
+
+    parser.add_argument(
+        "--burp",
+        action="store_true",
+        help="Route HTTP/S traffic through Burp Suite (127.0.0.1:8080)"
+    )
+
+    parser.add_argument(
+        "-o", "--prefix",
+        default=DEFAULT_PREFIX,
+        help="Output filename prefix (default: crawl)"
+    )
+
     parser.add_argument(
         "--mode",
         choices=["auto", "requests", "cloudscraper", "browser"],
         default="auto",
-        help="Engine: auto / requests / cloudscraper / browser (Playwright)"
+        help="Fetching engine (default: auto)"
     )
+
     args = parser.parse_args()
 
     crawler = EndpointCrawler(
